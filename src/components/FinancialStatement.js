@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getFinancialStatement, extractKeyFinancialIndicators } from '../services/dartApi';
 import './FinancialStatement.css';
@@ -21,11 +21,7 @@ const FinancialStatement = () => {
     '11014': '3분기보고서'
   };
 
-  useEffect(() => {
-    loadFinancialData();
-  }, [corpCode, selectedYear, selectedReport]);
-
-  const loadFinancialData = async () => {
+  const loadFinancialData = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -48,7 +44,11 @@ const FinancialStatement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [corpCode, selectedYear, selectedReport]);
+
+  useEffect(() => {
+    loadFinancialData();
+  }, [loadFinancialData]);
 
   const formatAmount = (amount) => {
     if (!amount) return '0';

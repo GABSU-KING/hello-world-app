@@ -7,7 +7,7 @@ import FinancialStatement from './components/FinancialStatement';
 // 메인 페이지 컴포넌트
 const HomePage = () => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('재무제표 탐색기');
+  const [title] = useState('재무제표 탐색기');
   const [isAnimated, setIsAnimated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
