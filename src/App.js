@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import './App.css';
 import { getCorpCodeList, validateApiKey } from './services/dartApi';
 import FinancialStatement from './components/FinancialStatement';
+import ApiTest from './components/ApiTest';
 
 // 모든 회사 목록 (드롭다운용)
 const ALL_COMPANIES = [
@@ -155,6 +156,9 @@ const HomePage = () => {
           >
             회사 고유번호 목록 가져오기 (API 테스트)
           </button>
+
+          {/* API 테스트 컴포넌트 */}
+          <ApiTest />
 
           <div className="decorative-elements">
             <div className="circle circle-1"></div>

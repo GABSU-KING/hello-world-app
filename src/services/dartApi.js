@@ -2,10 +2,15 @@
 const DART_API_KEY = process.env.REACT_APP_DART_API_KEY;
 const DART_API_URL = process.env.REACT_APP_DART_API_URL || 'https://opendart.fss.or.kr/api';
 
-console.log('DART API 설정 확인:');
+console.log('=== DART API 설정 상세 확인 ===');
+console.log('process.env:', process.env);
+console.log('REACT_APP_DART_API_KEY:', process.env.REACT_APP_DART_API_KEY);
+console.log('REACT_APP_DART_API_URL:', process.env.REACT_APP_DART_API_URL);
 console.log('API URL:', DART_API_URL);
 console.log('API KEY 설정됨:', !!DART_API_KEY);
 console.log('API KEY 길이:', DART_API_KEY?.length);
+console.log('API KEY 값:', DART_API_KEY);
+console.log('================================');
 
 // 회사 고유번호 목록 가져오기
 export const getCorpCodeList = async () => {
