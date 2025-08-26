@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import { getCorpCodeList, searchCompany, validateApiKey } from './services/dartApi';
+import FinancialStatement from './components/FinancialStatement';
 
-function App() {
+// 메인 페이지 컴포넌트
+const HomePage = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('재무제표 탐색기');
   const [isAnimated, setIsAnimated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +73,12 @@ function App() {
     }
   };
 
+  const handleCompanyClick = (company) => {
+    // URL 인코딩하여 특수문자 처리
+    const encodedCorpName = encodeURIComponent(company.corp_name);
+    navigate(`/financial/${company.corp_code}/${encodedCorpName}/${company.stock_code}`);
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -107,13 +117,18 @@ function App() {
             <div className="search-results">
               <h3>검색 결과</h3>
               {searchResults.map((company, index) => (
-                <div key={index} className="company-item">
+                <div 
+                  key={index} 
+                  className="company-item clickable"
+                  onClick={() => handleCompanyClick(company)}
+                >
                   <div className="company-name">{company.corp_name}</div>
                   <div className="company-details">
                     <span>고유번호: {company.corp_code}</span>
                     <span>종목코드: {company.stock_code}</span>
                     <span>수정일: {company.modify_date}</span>
                   </div>
+                  <div className="click-hint">클릭하여 재무제표 보기 →</div>
                 </div>
               ))}
             </div>
@@ -136,6 +151,18 @@ function App() {
         </div>
       </div>
     </div>
+  );
+};
+
+// 메인 App 컴포넌트
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/financial/:corpCode/:corpName/:stockCode" element={<FinancialStatement />} />
+      </Routes>
+    </Router>
   );
 }
 

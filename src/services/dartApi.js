@@ -54,9 +54,9 @@ export const searchCompany = async (companyName) => {
       data: {
         companies: [
           {
-            corp_code: '00123456',
+            corp_code: '00126380',
             corp_name: companyName,
-            stock_code: '123456',
+            stock_code: '005930',
             modify_date: '20241201'
           }
         ]
@@ -71,6 +71,80 @@ export const searchCompany = async (companyName) => {
       error: error.message
     };
   }
+};
+
+// 재무제표 데이터 가져오기
+export const getFinancialStatement = async (corpCode, bsnsYear = '2023', reprtCode = '11011') => {
+  try {
+    const response = await fetch(
+      `${DART_API_URL}/fnlttSinglAcnt.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${bsnsYear}&reprt_code=${reprtCode}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.status === '000') {
+      return {
+        success: true,
+        message: '재무제표 데이터를 성공적으로 가져왔습니다.',
+        data: data.list || []
+      };
+    } else {
+      return {
+        success: false,
+        message: `API 오류: ${data.message} (코드: ${data.status})`,
+        error: data.status
+      };
+    }
+
+  } catch (error) {
+    console.error('재무제표 API 호출 중 오류:', error);
+    return {
+      success: false,
+      message: '재무제표 데이터를 가져오는 중 오류가 발생했습니다.',
+      error: error.message
+    };
+  }
+};
+
+// 주요 재무 지표 추출
+export const extractKeyFinancialIndicators = (financialData) => {
+  if (!financialData || !Array.isArray(financialData)) {
+    return [];
+  }
+
+  const keyAccounts = [
+    '자산총계',
+    '부채총계',
+    '자본총계',
+    '매출액',
+    '영업이익',
+    '당기순이익',
+    '영업활동현금흐름',
+    '투자활동현금흐름',
+    '재무활동현금흐름'
+  ];
+
+  return financialData
+    .filter(item => keyAccounts.includes(item.account_nm))
+    .map(item => ({
+      accountName: item.account_nm,
+      currentAmount: item.thstrm_amount,
+      previousAmount: item.frmtrm_amount,
+      currentDate: item.thstrm_dt,
+      previousDate: item.frmtrm_dt,
+      fsDiv: item.fs_div,
+      sjDiv: item.sj_div
+    }));
 };
 
 // API 키 유효성 검사

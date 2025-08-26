@@ -192,9 +192,31 @@
   transition: all 0.3s ease;
 }
 
-.company-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+.company-item.clickable {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.company-item.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.company-item.clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.company-item.clickable:hover::before {
+  left: 100%;
 }
 
 .company-name {
@@ -210,6 +232,7 @@
   gap: 15px;
   font-size: 0.9rem;
   color: #718096;
+  margin-bottom: 10px;
 }
 
 .company-details span {
@@ -218,6 +241,19 @@
   border-radius: 20px;
   color: #667eea;
   font-weight: 500;
+}
+
+.click-hint {
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: right;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.company-item.clickable:hover .click-hint {
+  opacity: 1;
 }
 
 /* API 테스트 버튼 */
