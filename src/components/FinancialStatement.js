@@ -72,21 +72,27 @@ const FinancialStatement = () => {
   const loadFinancialData = useCallback(async () => {
     setIsLoading(true);
     setError('');
+    console.log('재무제표 데이터 로딩 시작:', { selectedCompany, selectedYear, selectedReport });
 
     try {
       const result = await getFinancialStatement(selectedCompany, selectedYear, selectedReport);
+      console.log('API 호출 결과:', result);
       
       if (result.success) {
+        console.log('재무제표 데이터 성공:', result.data.length, '개 항목');
         setFinancialData(result.data);
         const indicators = extractKeyFinancialIndicators(result.data);
+        console.log('추출된 주요 지표:', indicators.length, '개');
         setKeyIndicators(indicators);
       } else {
+        console.error('API 호출 실패:', result.message, result.error);
         setError(result.message);
         setFinancialData([]);
         setKeyIndicators([]);
       }
     } catch (err) {
-      setError('재무제표 데이터를 불러오는 중 오류가 발생했습니다.');
+      console.error('재무제표 로딩 중 예외 발생:', err);
+      setError(`재무제표 데이터를 불러오는 중 오류가 발생했습니다: ${err.message}`);
       setFinancialData([]);
       setKeyIndicators([]);
     } finally {

@@ -1,6 +1,11 @@
 // DART API 서비스
 const DART_API_KEY = process.env.REACT_APP_DART_API_KEY;
-const DART_API_URL = process.env.REACT_APP_DART_API_URL;
+const DART_API_URL = process.env.REACT_APP_DART_API_URL || 'https://opendart.fss.or.kr/api';
+
+console.log('DART API 설정 확인:');
+console.log('API URL:', DART_API_URL);
+console.log('API KEY 설정됨:', !!DART_API_KEY);
+console.log('API KEY 길이:', DART_API_KEY?.length);
 
 // 회사 고유번호 목록 가져오기
 export const getCorpCodeList = async () => {
@@ -203,46 +208,67 @@ export const searchCompany = async (companyName) => {
 // 재무제표 데이터 가져오기
 export const getFinancialStatement = async (corpCode, bsnsYear = '2023', reprtCode = '11011') => {
   try {
-    console.log('재무제표 API 호출:', { corpCode, bsnsYear, reprtCode });
+    console.log('=== 재무제표 API 호출 시작 ===');
+    console.log('파라미터:', { corpCode, bsnsYear, reprtCode });
+    console.log('API URL:', DART_API_URL);
+    console.log('API KEY 설정됨:', !!DART_API_KEY);
     
-    const response = await fetch(
-      `${DART_API_URL}/fnlttSinglAcnt.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${bsnsYear}&reprt_code=${reprtCode}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    if (!DART_API_KEY) {
+      throw new Error('DART API 키가 설정되지 않았습니다. .env 파일에 REACT_APP_DART_API_KEY를 설정해주세요.');
+    }
+    
+    const apiUrl = `${DART_API_URL}/fnlttSinglAcnt.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${bsnsYear}&reprt_code=${reprtCode}`;
+    console.log('요청 URL:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    console.log('재무제표 API 응답 상태:', response.status);
+    console.log('API 응답 상태:', response.status);
+    console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('API 응답 오류 내용:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('재무제표 API 응답 데이터:', data);
+    console.log('API 응답 데이터 구조:', Object.keys(data));
+    console.log('API 응답 상태 코드:', data.status);
+    console.log('API 응답 메시지:', data.message);
     
     if (data.status === '000') {
+      const list = data.list || [];
+      console.log('재무제표 데이터 개수:', list.length);
+      if (list.length > 0) {
+        console.log('첫 번째 데이터 예시:', list[0]);
+      }
+      
       return {
         success: true,
         message: '재무제표 데이터를 성공적으로 가져왔습니다.',
-        data: data.list || []
+        data: list
       };
     } else {
+      console.error('API 오류 응답:', data);
       return {
         success: false,
-        message: `API 오류: ${data.message} (코드: ${data.status})`,
-        error: data.status
+        message: `API 오류: ${data.message || '알 수 없는 오류'} (코드: ${data.status})`,
+        error: data.status,
+        details: data
       };
     }
 
   } catch (error) {
     console.error('재무제표 API 호출 중 오류:', error);
+    console.error('오류 스택:', error.stack);
     return {
       success: false,
-      message: '재무제표 데이터를 가져오는 중 오류가 발생했습니다.',
+      message: `재무제표 데이터를 가져오는 중 오류가 발생했습니다: ${error.message}`,
       error: error.message
     };
   }
