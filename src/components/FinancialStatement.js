@@ -94,9 +94,10 @@ const FinancialStatement = () => {
     }
   }, [selectedCompany, selectedYear, selectedReport]);
 
+  // 컴포넌트 마운트 시와 의존성 변경 시 데이터 로드
   useEffect(() => {
     loadFinancialData();
-  }, [selectedCompany, selectedYear, selectedReport]);
+  }, [loadFinancialData]);
 
   // 종목 변경 시 URL 업데이트
   const handleCompanyChange = (newCorpCode) => {
