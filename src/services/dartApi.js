@@ -42,24 +42,61 @@ export const getCorpCodeList = async () => {
   }
 };
 
-// 회사 검색 (임시 함수 - 실제로는 ZIP 파일 내부의 XML을 파싱해야 함)
+// 회사 검색 - 실제 API 호출 테스트
 export const searchCompany = async (companyName) => {
   try {
-    // 실제 구현에서는 ZIP 파일을 해제하고 XML을 파싱해야 함
-    console.log(`회사 검색: ${companyName}`);
-    
+    console.log(`회사 검색 시작: ${companyName}`);
+    console.log('API 키:', DART_API_KEY ? '설정됨' : '설정되지 않음');
+    console.log('API URL:', DART_API_URL);
+
+    // 실제 DART API 호출
+    const response = await fetch(
+      `${DART_API_URL}/corpCode.xml?crtfc_key=${DART_API_KEY}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log('API 응답 상태:', response.status);
+    console.log('API 응답 헤더:', response.headers);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // ZIP 파일을 받아서 처리
+    const blob = await response.blob();
+    console.log('ZIP 파일 크기:', blob.size, 'bytes');
+
+    // 임시로 테스트 데이터 반환 (실제로는 ZIP 파일을 파싱해야 함)
+    const testCompanies = [
+      {
+        corp_code: '00126380',
+        corp_name: companyName,
+        stock_code: '005930',
+        modify_date: '20241201'
+      },
+      {
+        corp_code: '00126381',
+        corp_name: `${companyName} (주)`,
+        stock_code: '005931',
+        modify_date: '20241201'
+      }
+    ];
+
     return {
       success: true,
-      message: `"${companyName}" 검색 결과`,
+      message: `"${companyName}" 검색 결과 (API 호출 성공)`,
       data: {
-        companies: [
-          {
-            corp_code: '00126380',
-            corp_name: companyName,
-            stock_code: '005930',
-            modify_date: '20241201'
-          }
-        ]
+        companies: testCompanies,
+        apiResponse: {
+          status: response.status,
+          blobSize: blob.size,
+          apiKey: DART_API_KEY ? '설정됨' : '설정되지 않음'
+        }
       }
     };
 
@@ -67,8 +104,9 @@ export const searchCompany = async (companyName) => {
     console.error('회사 검색 중 오류:', error);
     return {
       success: false,
-      message: '회사 검색 중 오류가 발생했습니다.',
-      error: error.message
+      message: `회사 검색 중 오류가 발생했습니다: ${error.message}`,
+      error: error.message,
+      apiKey: DART_API_KEY ? '설정됨' : '설정되지 않음'
     };
   }
 };
@@ -76,6 +114,8 @@ export const searchCompany = async (companyName) => {
 // 재무제표 데이터 가져오기
 export const getFinancialStatement = async (corpCode, bsnsYear = '2023', reprtCode = '11011') => {
   try {
+    console.log('재무제표 API 호출:', { corpCode, bsnsYear, reprtCode });
+    
     const response = await fetch(
       `${DART_API_URL}/fnlttSinglAcnt.json?crtfc_key=${DART_API_KEY}&corp_code=${corpCode}&bsns_year=${bsnsYear}&reprt_code=${reprtCode}`,
       {
@@ -86,11 +126,14 @@ export const getFinancialStatement = async (corpCode, bsnsYear = '2023', reprtCo
       }
     );
 
+    console.log('재무제표 API 응답 상태:', response.status);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('재무제표 API 응답 데이터:', data);
     
     if (data.status === '000') {
       return {
@@ -149,5 +192,7 @@ export const extractKeyFinancialIndicators = (financialData) => {
 
 // API 키 유효성 검사
 export const validateApiKey = () => {
-  return DART_API_KEY && DART_API_KEY.length === 40;
+  const isValid = DART_API_KEY && DART_API_KEY.length === 40;
+  console.log('API 키 유효성 검사:', isValid, '길이:', DART_API_KEY?.length);
+  return isValid;
 };
