@@ -307,7 +307,7 @@ export const extractKeyFinancialIndicators = (financialData) => {
 
 // API 키 유효성 검사
 export const validateApiKey = () => {
-  const isValid = DART_API_KEY && DART_API_KEY.length === 40;
+  const isValid = DART_API_KEY && DART_API_KEY.length >= 40;
   console.log('API 키 유효성 검사:', isValid, '길이:', DART_API_KEY?.length);
   return isValid;
 };
