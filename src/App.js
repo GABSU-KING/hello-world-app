@@ -1,17 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { getCorpCodeList, searchCompany, validateApiKey } from './services/dartApi';
 
 function App() {
   const [title, setTitle] = useState('재무제표 탐색기');
   const [isAnimated, setIsAnimated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     setIsAnimated(true);
   }, []);
 
-  const handleSearch = () => {
-    // TODO: 재무제표 검색 기능 구현
-    alert('재무제표 검색 기능이 곧 구현됩니다!');
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      setMessage('회사명을 입력해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage('');
+
+    try {
+      // API 키 유효성 검사
+      if (!validateApiKey()) {
+        setMessage('API 키가 올바르지 않습니다. .env 파일을 확인해주세요.');
+        return;
+      }
+
+      // 회사 검색
+      const result = await searchCompany(searchTerm);
+      
+      if (result.success) {
+        setSearchResults(result.data.companies);
+        setMessage(result.message);
+      } else {
+        setMessage(result.message);
+        setSearchResults([]);
+      }
+
+    } catch (error) {
+      setMessage('검색 중 오류가 발생했습니다.');
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGetCorpCodes = async () => {
+    setIsLoading(true);
+    setMessage('');
+
+    try {
+      if (!validateApiKey()) {
+        setMessage('API 키가 올바르지 않습니다. .env 파일을 확인해주세요.');
+        return;
+      }
+
+      const result = await getCorpCodeList();
+      setMessage(result.message);
+
+    } catch (error) {
+      setMessage('회사 고유번호 목록을 가져오는 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -20,9 +75,59 @@ function App() {
         <div className={`greeting-card ${isAnimated ? 'animate' : ''}`}>
           <h1 className="title">{title}</h1>
           <p className="subtitle">기업의 재무제표를 검색하고 주요 지표를 시각화하세요</p>
-          <button className="change-button" onClick={handleSearch}>
-            재무제표 조회
+          
+          {/* 검색 입력창 */}
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="회사명을 입력하세요 (예: 삼성전자)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <button 
+              className="change-button" 
+              onClick={handleSearch}
+              disabled={isLoading}
+            >
+              {isLoading ? '검색 중...' : '재무제표 조회'}
+            </button>
+          </div>
+
+          {/* 메시지 표시 */}
+          {message && (
+            <div className={`message ${message.includes('오류') ? 'error' : 'success'}`}>
+              {message}
+            </div>
+          )}
+
+          {/* 검색 결과 */}
+          {searchResults.length > 0 && (
+            <div className="search-results">
+              <h3>검색 결과</h3>
+              {searchResults.map((company, index) => (
+                <div key={index} className="company-item">
+                  <div className="company-name">{company.corp_name}</div>
+                  <div className="company-details">
+                    <span>고유번호: {company.corp_code}</span>
+                    <span>종목코드: {company.stock_code}</span>
+                    <span>수정일: {company.modify_date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* API 테스트 버튼 */}
+          <button 
+            className="api-test-button" 
+            onClick={handleGetCorpCodes}
+            disabled={isLoading}
+          >
+            회사 고유번호 목록 가져오기 (API 테스트)
           </button>
+
           <div className="decorative-elements">
             <div className="circle circle-1"></div>
             <div className="circle circle-2"></div>
