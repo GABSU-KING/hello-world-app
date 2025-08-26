@@ -2,25 +2,26 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [greeting, setGreeting] = useState('Hello World');
+  const [title, setTitle] = useState('재무제표 탐색기');
   const [isAnimated, setIsAnimated] = useState(false);
 
   useEffect(() => {
     setIsAnimated(true);
   }, []);
 
-  const handleClick = () => {
-    setGreeting(greeting === 'Hello World' ? '안녕하세요!' : 'Hello World');
+  const handleSearch = () => {
+    // TODO: 재무제표 검색 기능 구현
+    alert('재무제표 검색 기능이 곧 구현됩니다!');
   };
 
   return (
     <div className="App">
       <div className="container">
         <div className={`greeting-card ${isAnimated ? 'animate' : ''}`}>
-          <h1 className="title">{greeting}</h1>
-          <p className="subtitle">Welcome to my first deployed app!</p>
-          <button className="change-button" onClick={handleClick}>
-            언어 변경 / Change Language
+          <h1 className="title">{title}</h1>
+          <p className="subtitle">기업의 재무제표를 검색하고 주요 지표를 시각화하세요</p>
+          <button className="change-button" onClick={handleSearch}>
+            재무제표 조회
           </button>
           <div className="decorative-elements">
             <div className="circle circle-1"></div>

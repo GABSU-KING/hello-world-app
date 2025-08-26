@@ -10,7 +10,7 @@
 
 .container {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   padding: 20px;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .title {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #2d3748;
   margin: 0 0 20px 0;
@@ -55,10 +55,11 @@
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #718096;
   margin: 0 0 40px 0;
   font-weight: 400;
+  line-height: 1.6;
 }
 
 .change-button {
@@ -163,6 +164,10 @@
     padding: 12px 24px;
     font-size: 0.9rem;
   }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -171,6 +176,6 @@
   }
   
   .subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
